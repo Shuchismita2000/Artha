@@ -30,6 +30,21 @@ artha_project/
 │   └── artha_rm_dashboard.html    standalone RM-facing lead console (open in any browser)
 └── README.md                      this file
 ```
+## 📂 Dataset Availability
+
+To keep this repository lightweight and easy to navigate, only **sample datasets** are included here for demonstrating the project structure, schema, and workflows.
+
+The **complete synthetic dataset** used for model development and experimentation—including:
+
+- 5,000 customer profiles
+- 1M+ banking transactions
+- 489K+ behavioral events
+- Ground-truth loan application labels
+
+is publicly available on Kaggle.
+
+👉 **Download the full dataset here:**  
+https://www.kaggle.com/datasets/shuchismitamallick/loan-underwriting-and-customer-behavior-dataset
 
 ## How to run (in order)
 
@@ -47,7 +62,7 @@ python3 05_composite_score.py        # -> outputs/ranked_leads.csv
 Then open `outputs/artha_rm_dashboard.html` directly in a browser — no server
 needed, all lead data is embedded.
 
-## Design decisions worth highlighting in the pitch
+## Design decisions
 
 1. **No LLM/API calls anywhere in the core pipeline.** Narration parsing is
    rules-based (regex), both prediction models are gradient-boosted trees.
