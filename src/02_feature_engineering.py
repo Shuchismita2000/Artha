@@ -16,8 +16,8 @@ from datetime import datetime
 
 OBS_END = pd.Timestamp("2025-06-30")
 
-DATA_DIR = "/home/claude/artha_project/data"
-OUT_DIR = "/home/claude/artha_project/outputs"
+DATA_DIR = "../data"
+OUT_DIR = "../outputs"
 
 
 def build_affordability_features(txns: pd.DataFrame) -> pd.DataFrame:
