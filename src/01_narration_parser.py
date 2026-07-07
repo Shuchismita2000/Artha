@@ -67,7 +67,7 @@ def evaluate_parser(df: pd.DataFrame, true_col: str = "true_category",
 
 if __name__ == "__main__":
     print("Loading transaction ledger...")
-    txns = pd.read_csv("../data/transaction_ledger.csv")
+    txns = pd.read_csv("/home/claude/artha_project/data/transaction_ledger.csv")
 
     print("Running narration parser...")
     txns = parse_transactions(txns)
@@ -84,6 +84,6 @@ if __name__ == "__main__":
     # Save parsed ledger with predicted_category for downstream feature engineering.
     # (We keep predicted_category, not true_category, as the "real" signal a
     # production system would use -- true_category exists only for this validation step.)
-    out_path = "../outputs/transaction_ledger_parsed.csv"
+    out_path = "/home/claude/artha_project/outputs/transaction_ledger_parsed.csv"
     txns.drop(columns=["true_category"]).to_csv(out_path, index=False)
     print(f"\nSaved parsed ledger to {out_path}")

@@ -25,9 +25,9 @@ from sklearn.metrics import mean_absolute_error, r2_score
 import shap
 import joblib
 
-DATA_DIR = "../data"
-OUT_DIR = "../outputs"
-MODEL_DIR = "../models"
+DATA_DIR = "/home/claude/artha_project/data"
+OUT_DIR = "/home/claude/artha_project/outputs"
+MODEL_DIR = "/home/claude/artha_project/models"
 
 FEATURE_COLS = [
     "avg_monthly_credit", "income_cv", "income_stability_index",

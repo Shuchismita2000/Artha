@@ -11,8 +11,8 @@ problem statement.
 import pandas as pd
 import numpy as np
 
-DATA_DIR = "../data"
-OUT_DIR = "../outputs"
+DATA_DIR = "/home/claude/artha_project/data"
+OUT_DIR = "/home/claude/artha_project/outputs"
 
 
 def product_fit_multiplier(row):

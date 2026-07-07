@@ -16,9 +16,9 @@ from sklearn.preprocessing import LabelEncoder
 import shap
 import joblib
 
-DATA_DIR = "../data"
-OUT_DIR = "../outputs"
-MODEL_DIR = "../models"
+DATA_DIR = "/home/claude/artha_project/data"
+OUT_DIR = "/home/claude/artha_project/outputs"
+MODEL_DIR = "/home/claude/artha_project/models"
 
 NUMERIC_FEATURES = [
     "login_count", "calculator_use_count_30d", "calculator_use_count_total",
