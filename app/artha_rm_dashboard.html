@@ -255,6 +255,7 @@ footer{margin-top:40px;font-size:11px;color:var(--ink-soft);text-align:center;fo
 <script>
 
 let LEADS = [];
+let selectedLead = null;
 
 async function loadLeads() {
     try {
@@ -349,6 +350,136 @@ function explainNote(lead){
   return 'Ranked #' + lead.rank + ' of 5,000 — driven by ' + parts.join(', ') + '.';
 }
 
+function getPositiveDrivers(lead){
+
+    const drivers=[];
+
+    if(lead.intent_probability>=0.8)
+        drivers.push("Very strong recent digital engagement");
+
+    else if(lead.intent_probability>=0.6)
+        drivers.push("Consistent loan research activity");
+
+    if(lead.affordability_score>=0.7)
+        drivers.push("Excellent repayment capacity");
+
+    else if(lead.affordability_score>=0.5)
+        drivers.push("Healthy repayment capacity");
+
+    if(lead.estimated_monthly_income>=200000)
+        drivers.push("High monthly income");
+
+    if(lead.product_fit_multiplier>1.1)
+        drivers.push("Strong affinity with recommended product");
+
+    return drivers;
+}
+function getRiskFactors(lead){
+
+    const risks=[];
+
+    if(lead.intent_probability<0.4)
+        risks.push("Low recent purchase intent");
+
+    if(lead.affordability_score<0.4)
+        risks.push("Affordability is below average");
+
+    if(lead.estimated_monthly_income<120000)
+        risks.push("Income may limit eligibility");
+
+    if(risks.length===0)
+        risks.push("No major risks identified");
+
+    return risks;
+}
+function aiSummary(lead){
+
+    return `${lead.customer_id} demonstrates ${
+        lead.intent_probability>0.7?"strong":"moderate"
+    } purchase intent with ${
+        lead.affordability_score>0.6?"healthy":"moderate"
+    } repayment capacity. The customer appears suitable for a ${lead.preferred_product} loan and is expected to respond well to timely engagement.`;
+}
+function nextBestAction(lead){
+
+    if(
+        lead.intent_probability>0.75 &&
+        lead.affordability_score>0.6
+    )
+        return "Contact within 24 hours with a pre-approved loan offer.";
+
+    if(lead.intent_probability>0.6)
+        return "Share personalized offer and schedule RM callback.";
+
+    return "Continue digital nurturing before outbound call.";
+}
+function conversationOpener(lead){
+
+    return `Hello! We noticed your recent interest in ${lead.preferred_product} loans. Based on your banking relationship, we'd like to discuss financing options that may suit your requirements.`;
+}
+function callDecision(lead){
+
+    if(
+        lead.intent_probability>0.7 &&
+        lead.affordability_score>0.5
+    )
+        return "📞 CALL TODAY";
+
+    if(lead.intent_probability>0.45)
+        return "📅 FOLLOW UP THIS WEEK";
+
+    return "🌱 KEEP NURTURING";
+}
+function populateAssistant(lead){
+
+    const log=document.getElementById("chatLog");
+
+    log.innerHTML=`
+
+<div class="chat-msg bot">
+
+<h3>🤖 AI RM Assistant</h3>
+
+<p><b>Customer:</b> ${lead.customer_id}</p>
+
+<hr>
+
+<h4>Why this customer ranks highly</h4>
+
+<ul>
+${getPositiveDrivers(lead).map(x=>`<li>${x}</li>`).join("")}
+</ul>
+
+<h4>Lead Summary</h4>
+
+<p>${aiSummary(lead)}</p>
+
+<h4>Risk Factors</h4>
+
+<ul>
+${getRiskFactors(lead).map(x=>`<li>${x}</li>`).join("")}
+</ul>
+
+<h4>Next Best Action</h4>
+
+<p>${nextBestAction(lead)}</p>
+
+<h4>Suggested Conversation</h4>
+
+<p>${conversationOpener(lead)}</p>
+
+<h4>Recommendation</h4>
+
+<p style="font-size:18px;font-weight:bold;color:#166534;">
+${callDecision(lead)}
+</p>
+
+</div>
+`;
+
+}
+
+
 function render(){
   if (!LEADS.length) return;
   const product = document.getElementById('filterProduct').value;
@@ -381,7 +512,16 @@ function render(){
       <td class="occ-tag">${occLabel(lead.occupation_type)}</td>
       <td class="outcome ${lead.converted_flag ? 'yes' : 'no'}">${lead.converted_flag ? 'Converted' : (lead.applied_flag ? 'Applied' : '—')}</td>
     `;
-    tr.addEventListener('click', () => toggleDetail(lead, tr));
+    tr.addEventListener('click', () => {
+
+    selectedLead = lead;
+
+    populateAssistant(lead);
+
+    toggleDetail(lead, tr);
+
+    });
+
     tbody.appendChild(tr);
   });
 }
