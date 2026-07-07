@@ -8,6 +8,8 @@ this is the number that answers the ">30% conversion" requirement in the
 problem statement.
 """
 
+import json
+
 import pandas as pd
 import numpy as np
 import kagglehub
@@ -103,6 +105,22 @@ def main():
     df[output_cols].to_csv(f"{OUT_DIR}/ranked_leads.csv", index=False)
     print(f"\nSaved ranked_leads.csv: {df.shape[0]} rows")
     print(df[output_cols].head(10))
+    # Convert column names to snake_case (optional, if needed)
+    df[output_cols].columns = (
+        df[output_cols].columns.str.strip()
+                  .str.lower()
+                  .str.replace(" ", "_")
+                  .str.replace(".", "", regex=False)
+    )
+
+    # Convert DataFrame to list of dictionaries
+    records = df[output_cols].to_dict(orient="records")
+
+    # Save as JSON
+    with open(f"{OUT_DIR}/ranked_leads.json", "w") as f:
+        json.dump(records, f, indent=4)
+
+    print("JSON file saved as ranked_leads.json")
 
 
 if __name__ == "__main__":

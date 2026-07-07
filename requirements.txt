@@ -5,3 +5,4 @@ scikit-learn>=1.0.0
 lightgbm>=3.3.0
 shap>=0.42.0
 joblib>=1.1.0
+kagglehub>=0.1.0
