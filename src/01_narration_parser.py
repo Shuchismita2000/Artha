@@ -14,8 +14,9 @@ parser accuracy -- a real deliverable for the pitch.
 """
 
 import re
-import pandas as pd
-import numpy as np
+import pandas as pd  
+import kagglehub
+from kagglehub import KaggleDatasetAdapter
 
 # ---------------------------------------------------------------------------
 # Rule definitions -- ordered; first match wins.
@@ -67,7 +68,9 @@ def evaluate_parser(df: pd.DataFrame, true_col: str = "true_category",
 
 if __name__ == "__main__":
     print("Loading transaction ledger...")
-    txns = pd.read_csv("/home/claude/artha_project/data/transaction_ledger.csv")
+    txns = kagglehub.load_dataset(KaggleDatasetAdapter.PANDAS,
+                                  "shuchismitamallick/loan-underwriting-and-customer-behavior-dataset",
+                                  "transaction_ledger.csv")
 
     print("Running narration parser...")
     txns = parse_transactions(txns)
@@ -84,6 +87,6 @@ if __name__ == "__main__":
     # Save parsed ledger with predicted_category for downstream feature engineering.
     # (We keep predicted_category, not true_category, as the "real" signal a
     # production system would use -- true_category exists only for this validation step.)
-    out_path = "/home/claude/artha_project/outputs/transaction_ledger_parsed.csv"
+    out_path = ".//outputs/transaction_ledger_parsed.csv"
     txns.drop(columns=["true_category"]).to_csv(out_path, index=False)
     print(f"\nSaved parsed ledger to {out_path}")

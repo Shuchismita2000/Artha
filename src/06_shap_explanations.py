@@ -18,9 +18,9 @@ import joblib
 import shap
 import json
 
-DATA_DIR = "/home/claude/artha_project/data"
-OUT_DIR = "/home/claude/artha_project/outputs"
-MODEL_DIR = "/home/claude/artha_project/models"
+DATA_DIR = ".//data"
+OUT_DIR = ".//outputs"
+MODEL_DIR = ".//models"
 
 INCOME_FEATURE_COLS = [
     "avg_monthly_credit", "income_cv", "income_stability_index",
@@ -95,7 +95,7 @@ def top_drivers(shap_row, feature_names, labels, raw_values=None):
 def main():
     print("=== Income model SHAP (all customers) ===")
     income_model = joblib.load(f"{MODEL_DIR}/income_model.pkl")
-    aff_feats = pd.read_csv(f"{OUT_DIR}/affordability_features.csv")
+    aff_feats = pd.read_csv(f"{OUT_DIR}/features/affordability_features.csv")
     X_income = aff_feats[INCOME_FEATURE_COLS]
 
     explainer_income = shap.TreeExplainer(income_model)
@@ -109,7 +109,7 @@ def main():
     print("\n=== Intent model SHAP (all customers) ===")
     intent_model = joblib.load(f"{MODEL_DIR}/intent_model.pkl")
     encoders = joblib.load(f"{MODEL_DIR}/intent_encoders.pkl")
-    intent_feats = pd.read_csv(f"{OUT_DIR}/intent_features.csv")
+    intent_feats = pd.read_csv(f"{OUT_DIR}/features/intent_features.csv")
 
     for col in CATEGORICAL_INTENT_FEATURES:
         le = encoders[col]
@@ -140,7 +140,7 @@ def main():
             "intent_drivers": intent_explanations.get(cid, []),
         }
 
-    out_path = f"{OUT_DIR}/lead_explanations.json"
+    out_path = f"{OUT_DIR}/explainability/lead_explanations.json"
     with open(out_path, "w") as f:
         json.dump(combined, f)
 

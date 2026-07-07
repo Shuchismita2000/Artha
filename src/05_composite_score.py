@@ -10,9 +10,11 @@ problem statement.
 
 import pandas as pd
 import numpy as np
+import kagglehub
+from kagglehub import KaggleDatasetAdapter
 
-DATA_DIR = "/home/claude/artha_project/data"
-OUT_DIR = "/home/claude/artha_project/outputs"
+DATA_DIR = ".//data"
+OUT_DIR = ".//outputs"
 
 
 def product_fit_multiplier(row):
@@ -35,11 +37,15 @@ def product_fit_multiplier(row):
 
 def main():
     print("Loading model outputs...")
-    income_est = pd.read_csv(f"{OUT_DIR}/income_estimates_all_customers.csv")
-    intent_scores = pd.read_csv(f"{OUT_DIR}/intent_scores_all_customers.csv")
-    affordability_feats = pd.read_csv(f"{OUT_DIR}/affordability_features.csv")
-    customers = pd.read_csv(f"{DATA_DIR}/customer_master.csv")
-    labels = pd.read_csv(f"{DATA_DIR}/labels.csv")
+    income_est = pd.read_csv(f"{OUT_DIR}/score/income_estimates_all_customers.csv")
+    intent_scores = pd.read_csv(f"{OUT_DIR}/score/intent_scores_all_customers.csv")
+    affordability_feats = pd.read_csv(f"{OUT_DIR}/features/affordability_features.csv")
+    customers = kagglehub.load_dataset(KaggleDatasetAdapter.PANDAS,
+                                  "shuchismitamallick/loan-underwriting-and-customer-behavior-dataset",
+                                  "customer_master.csv")
+    labels = kagglehub.load_dataset(KaggleDatasetAdapter.PANDAS,
+                                  "shuchismitamallick/loan-underwriting-and-customer-behavior-dataset",
+                                  "labels.csv")
 
     df = (income_est
           .merge(intent_scores, on="customer_id", how="left")

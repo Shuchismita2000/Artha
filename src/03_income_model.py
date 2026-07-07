@@ -24,10 +24,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, r2_score
 import shap
 import joblib
+import kagglehub
+from kagglehub import KaggleDatasetAdapter
 
-DATA_DIR = "/home/claude/artha_project/data"
-OUT_DIR = "/home/claude/artha_project/outputs"
-MODEL_DIR = "/home/claude/artha_project/models"
+OUT_DIR = ".//outputs"
+MODEL_DIR = ".//models"
 
 FEATURE_COLS = [
     "avg_monthly_credit", "income_cv", "income_stability_index",
@@ -39,8 +40,10 @@ FEATURE_COLS = [
 
 def main():
     print("Loading features + customer master...")
-    feats = pd.read_csv(f"{OUT_DIR}/affordability_features.csv")
-    customers = pd.read_csv(f"{DATA_DIR}/customer_master.csv")
+    feats = pd.read_csv(f"{OUT_DIR}/features/affordability_features.csv")
+    customers = kagglehub.load_dataset(KaggleDatasetAdapter.PANDAS,
+                                  "shuchismitamallick/loan-underwriting-and-customer-behavior-dataset",
+                                  "customer_master.csv")
 
     df = feats.merge(customers[["customer_id", "occupation_type", "declared_annual_income"]],
                       on="customer_id", how="left")
@@ -100,7 +103,7 @@ def main():
 
     # --- Save everything ---
     apply_df[["customer_id", "declared_monthly_income", "estimated_monthly_income", "income_gap_pct"]].to_csv(
-        f"{OUT_DIR}/income_reestimation_self_employed.csv", index=False
+        f"{OUT_DIR}/score/income_reestimation_self_employed.csv", index=False
     )
 
     # Score EVERY customer (salaried get model applied too, for consistency downstream in
@@ -111,10 +114,10 @@ def main():
     )
 
     joblib.dump(model, f"{MODEL_DIR}/income_model.pkl")
-    mean_abs_shap.to_csv(f"{OUT_DIR}/income_model_shap_importance.csv")
+    mean_abs_shap.to_csv(f"{OUT_DIR}/shap/income_model_shap_importance.csv")
 
     print(f"\nSaved model to {MODEL_DIR}/income_model.pkl")
-    print(f"Saved estimates to {OUT_DIR}/income_estimates_all_customers.csv")
+    print(f"Saved estimates to {OUT_DIR}/score/income_estimates_all_customers.csv")
 
 
 if __name__ == "__main__":

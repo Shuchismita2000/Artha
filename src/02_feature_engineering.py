@@ -12,12 +12,12 @@ Both are keyed on customer_id and can be joined to labels.csv for training.
 
 import pandas as pd
 import numpy as np
-from datetime import datetime
+import kagglehub
+from kagglehub import KaggleDatasetAdapter
 
 OBS_END = pd.Timestamp("2025-06-30")
 
-DATA_DIR = "/home/claude/artha_project/data"
-OUT_DIR = "/home/claude/artha_project/outputs"
+OUT_DIR = ".//outputs"
 
 
 def build_affordability_features(txns: pd.DataFrame) -> pd.DataFrame:
@@ -126,8 +126,12 @@ def build_intent_features(behav: pd.DataFrame) -> pd.DataFrame:
 if __name__ == "__main__":
     print("Loading data...")
     txns = pd.read_csv(f"{OUT_DIR}/transaction_ledger_parsed.csv")
-    behav = pd.read_csv(f"{DATA_DIR}/behavioral_log.csv")
-    customers = pd.read_csv(f"{DATA_DIR}/customer_master.csv")
+    behav = kagglehub.load_dataset(KaggleDatasetAdapter.PANDAS,
+                                  "shuchismitamallick/loan-underwriting-and-customer-behavior-dataset",
+                                  "behavioral_log.csv")
+    customers = kagglehub.load_dataset(KaggleDatasetAdapter.PANDAS,
+                                  "shuchismitamallick/loan-underwriting-and-customer-behavior-dataset",
+                                  "customer_master.csv")
 
     print("Building affordability features...")
     affordability_feats = build_affordability_features(txns)
@@ -155,8 +159,8 @@ if __name__ == "__main__":
         on="customer_id", how="left"
     )
 
-    affordability_feats.to_csv(f"{OUT_DIR}/affordability_features.csv", index=False)
-    intent_feats_full.to_csv(f"{OUT_DIR}/intent_features.csv", index=False)
+    affordability_feats.to_csv(f"{OUT_DIR}/features/affordability_features.csv", index=False)
+    intent_feats_full.to_csv(f"{OUT_DIR}/features/intent_features.csv", index=False)
 
     print(f"\nSaved affordability_features.csv: {affordability_feats.shape}")
     print(f"Saved intent_features.csv: {intent_feats_full.shape}")

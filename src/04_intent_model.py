@@ -15,10 +15,12 @@ from sklearn.metrics import roc_auc_score, precision_score, recall_score
 from sklearn.preprocessing import LabelEncoder
 import shap
 import joblib
+import kagglehub
+from kagglehub import KaggleDatasetAdapter
 
-DATA_DIR = "/home/claude/artha_project/data"
-OUT_DIR = "/home/claude/artha_project/outputs"
-MODEL_DIR = "/home/claude/artha_project/models"
+DATA_DIR = ".//data"
+OUT_DIR = ".//outputs"
+MODEL_DIR = ".//models"
 
 NUMERIC_FEATURES = [
     "login_count", "calculator_use_count_30d", "calculator_use_count_total",
@@ -32,8 +34,11 @@ CATEGORICAL_FEATURES = ["preferred_product", "occupation_type", "city_tier", "re
 
 def main():
     print("Loading features + labels...")
-    feats = pd.read_csv(f"{OUT_DIR}/intent_features.csv")
-    labels = pd.read_csv(f"{DATA_DIR}/labels.csv")
+    feats = pd.read_csv(f"{OUT_DIR}/features/intent_features.csv")
+    labels = kagglehub.load_dataset(KaggleDatasetAdapter.PANDAS,
+                                  "shuchismitamallick/loan-underwriting-and-customer-behavior-dataset",
+                                  "labels.csv")
+
 
     df = feats.merge(labels[["customer_id", "applied_flag", "converted_flag"]], on="customer_id", how="left")
 
@@ -98,10 +103,10 @@ def main():
 
     joblib.dump(model, f"{MODEL_DIR}/intent_model.pkl")
     joblib.dump(encoders, f"{MODEL_DIR}/intent_encoders.pkl")
-    mean_abs_shap.to_csv(f"{OUT_DIR}/intent_model_shap_importance.csv")
+    mean_abs_shap.to_csv(f"{OUT_DIR}/shap/intent_model_shap_importance.csv")
 
     print(f"\nSaved model to {MODEL_DIR}/intent_model.pkl")
-    print(f"Saved scores to {OUT_DIR}/intent_scores_all_customers.csv")
+    print(f"Saved scores to {OUT_DIR}/score/intent_scores_all_customers.csv")
 
 
 if __name__ == "__main__":
