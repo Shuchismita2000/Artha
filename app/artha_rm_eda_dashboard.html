@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artha — RM EDA Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f6f3ec;
+      --surface: #ffffff;
+      --ink: #1c2b47;
+      --ink-soft: #5b6b85;
+      --line: #ddd6c4;
+      --accent: #b8842e;
+      --accent-soft: #efe1c4;
+      --good: #3f7a5c;
+      --bad: #a6493c;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; }
+    .wrap { max-width: 1220px; margin: 0 auto; padding: 28px 24px 60px; }
+    header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 24px; border-bottom: 2px solid var(--ink); padding-bottom: 16px; }
+    h1 { font-family: 'Fraunces', serif; font-size: 34px; margin: 0; }
+    .subtitle { color: var(--ink-soft); margin-top: 6px; font-size: 13px; }
+    .note { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); max-width: 320px; text-align: right; line-height: 1.55; }
+    .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; box-shadow: 0 8px 24px -16px rgba(28,43,71,.35); }
+    .card .label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--ink-soft); letter-spacing: .06em; }
+    .card .value { font-family: 'Fraunces', serif; font-size: 24px; margin-top: 6px; font-weight: 700; }
+    .card .hint { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+    .dashboard-grid { display: grid; grid-template-columns: 1.4fr .9fr; gap: 18px; }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; margin-bottom: 18px; }
+    .panel h2 { font-family: 'Fraunces', serif; font-size: 20px; margin: 0 0 6px; }
+    .panel .helper { color: var(--ink-soft); font-size: 13px; margin-bottom: 12px; }
+    .bar-list { display: grid; gap: 10px; }
+    .bar-row { display: grid; grid-template-columns: 122px 1fr 44px; align-items: center; gap: 10px; }
+    .bar-row .name { font-size: 12px; color: var(--ink-soft); }
+    .track { height: 10px; background: #efeae0; border-radius: 999px; overflow: hidden; }
+    .fill { height: 100%; background: var(--accent); border-radius: inherit; }
+    .bar-row .value { font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-align: right; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+    th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); }
+    .pill { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 3px 8px; background: var(--accent-soft); color: var(--accent); border-radius: 999px; }
+    .status { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); }
+    .footer-link { margin-top: 24px; display: inline-block; color: var(--ink); text-decoration: none; font-weight: 600; }
+    @media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dashboard-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .kpis { grid-template-columns: 1fr; } .bar-row { grid-template-columns: 96px 1fr 34px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Artha RM EDA</h1>
+        <div class="subtitle">Basic portfolio review for relationship managers, driven by the generated lead score output.</div>
+      </div>
+      <div class="note">Source: outputs/ranked_leads.csv<br />Updated from the Python pipeline</div>
+    </header>
+
+    <div class="kpis">
+      <div class="card"><div class="label">Total leads</div><div class="value" id="metricTotal">—</div><div class="hint">scored customers in the latest export</div></div>
+      <div class="card"><div class="label">Top-20% conversion</div><div class="value" id="metricTop20">—</div><div class="hint">precision among the highest-ranked leads</div></div>
+      <div class="card"><div class="label">Median income</div><div class="value" id="metricIncome">—</div><div class="hint">estimated monthly income</div></div>
+      <div class="card"><div class="label">Avg intent score</div><div class="value" id="metricIntent">—</div><div class="hint">average intent probability</div></div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div>
+        <div class="panel">
+          <h2>Top 10 leads by priority</h2>
+          <div class="helper">The table below is sorted directly from the generated ranking file.</div>
+          <table>
+            <thead>
+              <tr><th>Rank</th><th>Customer</th><th>Score</th><th>Intent</th><th>Affordability</th><th>Income</th></tr>
+            </thead>
+            <tbody id="topLeadsBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h2>Product mix</h2>
+          <div class="helper">Which loan products the current ranked list favors.</div>
+          <div id="productMix" class="bar-list"></div>
+        </div>
+        <div class="panel">
+          <h2>Occupation mix</h2>
+          <div class="helper">How salaried and self-employed leads are distributed.</div>
+          <div id="occupationMix" class="bar-list"></div>
+        </div>
+        <div class="panel">
+          <h2>Outcome snapshot</h2>
+          <div class="helper">Applications and conversions observed in the scored population.</div>
+          <div id="outcomeMix" class="bar-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <a class="footer-link" href="artha_rm_dashboard.html">← Back to the live RM lead console</a>
+  </div>
+
+  <script>
+    const CSV_PATH = '../outputs/ranked_leads.csv';
+
+    function parseCSV(text) {
+      const rows = [];
+      const lines = text.trim().split(/\r?\n/).filter(Boolean);
+      if (!lines.length) return rows;
+      const headers = splitCSV(lines[0]);
+      for (let i = 1; i < lines.length; i += 1) {
+        const values = splitCSV(lines[i]);
+        const row = {};
+        headers.forEach((header, idx) => {
+          row[header] = values[idx] || '';
+        });
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function splitCSV(line) {
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i += 1) {
+        const char = line[i];
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim());
+      return values;
+    }
+
+    function formatMoney(value) {
+      return '₹' + Math.round(Number(value)).toLocaleString('en-IN');
+    }
+
+    function formatPercent(value) {
+      return (Number(value) * 100).toFixed(1) + '%';
+    }
+
+    function average(values) {
+      if (!values.length) return 0;
+      return values.reduce((a, b) => a + b, 0) / values.length;
+    }
+
+    function median(values) {
+      if (!values.length) return 0;
+      const sorted = [...values].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      if (sorted.length % 2 === 0) {
+        return (sorted[mid - 1] + sorted[mid]) / 2;
+      }
+      return sorted[mid];
+    }
+
+    function renderBars(containerId, entries, formatter = (v) => v) {
+      const container = document.getElementById(containerId);
+      const max = Math.max(...entries.map((entry) => entry.value), 1);
+      container.innerHTML = entries.map((entry) => {
+        const width = Math.max(8, (entry.value / max) * 100);
+        return `
+          <div class="bar-row">
+            <div class="name">${entry.label}</div>
+            <div class="track"><div class="fill" style="width:${width}%"></div></div>
+            <div class="value">${formatter(entry.value)}</div>
+          </div>`;
+      }).join('');
+    }
+
+    async function loadLeads() {
+      try {
+        const response = await fetch(CSV_PATH);
+        if (!response.ok) throw new Error('Unable to load ranked leads export');
+        const text = await response.text();
+        const rows = parseCSV(text).map((row) => ({
+          ...row,
+          rank: Number(row.rank),
+          lead_priority_score: Number(row.lead_priority_score),
+          intent_probability: Number(row.intent_probability),
+          affordability_score: Number(row.affordability_score),
+          estimated_monthly_income: Number(row.estimated_monthly_income),
+          applied_flag: Number(row.applied_flag),
+          converted_flag: Number(row.converted_flag)
+        }));
+
+        if (!rows.length) throw new Error('No lead rows found');
+
+        const top20Count = Math.max(1, Math.round(rows.length * 0.2));
+        const top20 = rows.slice(0, top20Count);
+        const top20Conversion = top20.filter((lead) => lead.converted_flag === 1).length / top20.length;
+        const baselineConversion = rows.filter((lead) => lead.converted_flag === 1).length / rows.length;
+
+        document.getElementById('metricTotal').textContent = rows.length.toLocaleString('en-IN');
+        document.getElementById('metricTop20').textContent = formatPercent(top20Conversion);
+        document.getElementById('metricIncome').textContent = formatMoney(median(rows.map((lead) => lead.estimated_monthly_income)));
+        document.getElementById('metricIntent').textContent = formatPercent(average(rows.map((lead) => lead.intent_probability)));
+
+        const productCounts = rows.reduce((acc, lead) => {
+          const key = lead.preferred_product || 'unknown';
+          acc[key] = (acc[key] || 0) + 1;
+          return acc;
+        }, {});
+        const occupationCounts = rows.reduce((acc, lead) => {
+          const key = lead.occupation_type || 'unknown';
+          acc[key] = (acc[key] || 0) + 1;
+          return acc;
+        }, {});
+
+        const outcomeCounts = {
+          converted: rows.filter((lead) => lead.converted_flag === 1).length,
+          applied: rows.filter((lead) => lead.applied_flag === 1).length,
+          cold: rows.length - rows.filter((lead) => lead.applied_flag === 1).length
+        };
+
+        renderBars('productMix', Object.entries(productCounts).map(([label, value]) => ({ label, value })), (v) => v);
+        renderBars('occupationMix', Object.entries(occupationCounts).map(([label, value]) => ({ label, value })), (v) => v);
+        renderBars('outcomeMix', Object.entries(outcomeCounts).map(([label, value]) => ({ label, value })), (v) => v);
+
+        const topRows = rows.slice(0, 10);
+        document.getElementById('topLeadsBody').innerHTML = topRows.map((lead) => `
+          <tr>
+            <td>#${lead.rank}</td>
+            <td>${lead.customer_id}</td>
+            <td><span class="pill">${lead.lead_priority_score.toFixed(3)}</span></td>
+            <td>${formatPercent(lead.intent_probability)}</td>
+            <td>${formatPercent(lead.affordability_score)}</td>
+            <td>${formatMoney(lead.estimated_monthly_income)}</td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        document.getElementById('metricTotal').textContent = 'Unavailable';
+        document.getElementById('metricTop20').textContent = 'Unavailable';
+        document.getElementById('metricIncome').textContent = 'Unavailable';
+        document.getElementById('metricIntent').textContent = 'Unavailable';
+        document.getElementById('topLeadsBody').innerHTML = `<tr><td colspan="6" class="status">${error.message}</td></tr>`;
+        document.getElementById('productMix').innerHTML = '<div class="status">The CSV could not be loaded. Publish the site via GitHub Pages so the outputs folder is served.</div>';
+        document.getElementById('occupationMix').innerHTML = '<div class="status">The CSV could not be loaded. Publish the site via GitHub Pages so the outputs folder is served.</div>';
+        document.getElementById('outcomeMix').innerHTML = '<div class="status">The CSV could not be loaded. Publish the site via GitHub Pages so the outputs folder is served.</div>';
+      }
+    }
+
+    loadLeads();
+  </script>
+</body>
+</html>
