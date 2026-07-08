@@ -12,23 +12,43 @@ comfortably clearing the >30% conversion target in the problem statement.
 
 ## Project structure
 
-```
-artha_project/
-├── data/                          synthetic input tables (see DATA_DICTIONARY.md)
-│   ├── customer_master.csv
-│   ├── transaction_ledger.csv
-│   ├── behavioral_log.csv
-│   └── labels.csv                 (ground truth — backtest only, never a model input)
-├── src/
-│   ├── 01_narration_parser.py     rules-based transaction categorization
-│   ├── 02_feature_engineering.py  builds affordability + intent feature sets
-│   ├── 03_income_model.py         XGBoost regression: income/repayment capacity
-│   ├── 04_intent_model.py         LightGBM classification: loan intent propensity
-│   └── 05_composite_score.py      combines both models, backtests precision@top-k
-├── models/                         saved .pkl model artifacts
-├── outputs/                        all generated features, scores, and the dashboard
-│   └── artha_rm_dashboard.html    standalone RM-facing lead console (open in any browser)
-└── README.md                      this file
+```text
+Artha/
+├── app/                                       # Frontend web application
+│   ├── artha_landing_page.html                # Project landing page
+│   ├── artha_rm_dashboard.html                # Interactive Relationship Manager dashboard
+│   └── artha_rm_eda_dashboard.html            # Exploratory Data Analysis (EDA) dashboard
+│
+├── data/                                      # Sample datasets and documentation
+│   ├── behavioral_log_sample.csv              # Sample customer behavioral events
+│   ├── customer_master_sample.csv             # Sample customer master records
+│   ├── DATA_DICTIONARY.md                     # Description of dataset schema and fields
+│   ├── FEATURE_ENGINEERING_DATA_DICTIONARY.md # Engineered feature descriptions
+│   ├── labels_sample.csv                      # Sample ground-truth loan labels (backtesting only)
+│   └── transaction_ledger_sample.csv          # Sample banking transaction history
+│
+├── models/                                    # Trained ML model artifacts (.pkl)
+│
+├── outputs/                                   # Generated outputs from the ML pipeline
+│   ├── explainability/                        # Feature contribution reports
+│   ├── features/                              # Engineered feature datasets
+│   ├── ranked_leads.csv                       # Final prioritized lead list
+│   ├── ranked_leads.json                      # Dashboard-ready lead data
+│   ├── score/                                 # Income, intent, and composite scores
+│   ├── shap/                                  # SHAP explainability outputs
+│   └── transaction_ledger_parsed.csv          # Parsed and categorized transactions
+│
+├── src/                                       # Machine Learning pipeline
+│   ├── 01_narration_parser.py                 # Rule-based transaction narration parser
+│   ├── 02_feature_engineering.py              # Builds affordability & intent features
+│   ├── 03_income_model.py                     # XGBoost income estimation model
+│   ├── 04_intent_model.py                     # LightGBM loan intent prediction model
+│   ├── 05_composite_score.py                  # Generates explainable lead priority score
+│   └── 06_shap_explanations.py                # Produces SHAP explanations for predictions
+│
+├── index.html                                 # Redirects to the live application
+├── README.md                                  # Project documentation
+└── requirements.txt                           # Python dependencies
 ```
 ## 📂 Dataset Availability
 
@@ -43,8 +63,33 @@ The **complete synthetic dataset** used for model development and experimentatio
 
 is publicly available on Kaggle.
 
-👉 **Download the full dataset here:**  
+👉 **Download the full dataset from Kaggle**
+
 https://www.kaggle.com/datasets/shuchismitamallick/loan-underwriting-and-customer-behavior-dataset
+
+## 🌐 Live Demo
+
+Experience the interactive RM Dashboard directly in your browser.
+
+**Live Website:**  
+👉 https://shuchismita2000.github.io/Artha
+
+The dashboard demonstrates:
+
+- AI-powered lead prioritization
+- Income estimation and affordability assessment
+- Loan intent prediction
+- Explainable lead scoring
+- Interactive "Ask Artha" assistant
+- Customer insights and recommendations
+
+No installation is required to explore the dashboard.
+
+## 🎥 Demo Video
+
+A 3-minute walkthrough of the complete solution is available here:
+
+👉 https://YOUR_VIDEO_LINK
 
 ## How to run (in order)
 
