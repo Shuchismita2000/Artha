@@ -91,6 +91,10 @@ A 3-minute walkthrough of the complete solution is available here:
 
 👉 [https://DEMO_VIDEO_LINK](https://github.com/Shuchismita2000/Artha/blob/main/Artha%20Demo%20Video.mp4)
 
+
+
+https://github.com/user-attachments/assets/b97eeb96-5612-445b-93e4-e5a327c66d13
+
 ## Design decisions
 
 1. **No LLM/API calls anywhere in the core pipeline.** Narration parsing is
