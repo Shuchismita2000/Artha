@@ -91,22 +91,6 @@ A 3-minute walkthrough of the complete solution is available here:
 
 👉 https://YOUR_VIDEO_LINK
 
-## How to run (in order)
-
-```bash
-pip install pandas numpy scikit-learn xgboost lightgbm shap joblib --break-system-packages
-
-cd src
-python3 01_narration_parser.py       # -> outputs/transaction_ledger_parsed.csv
-python3 02_feature_engineering.py    # -> outputs/affordability_features.csv, intent_features.csv
-python3 03_income_model.py           # -> models/income_model.pkl, outputs/income_estimates_all_customers.csv
-python3 04_intent_model.py           # -> models/intent_model.pkl, outputs/intent_scores_all_customers.csv
-python3 05_composite_score.py        # -> outputs/ranked_leads.csv
-```
-
-Then open `outputs/artha_rm_dashboard.html` directly in a browser — no server
-needed, all lead data is embedded.
-
 ## Design decisions
 
 1. **No LLM/API calls anywhere in the core pipeline.** Narration parsing is
