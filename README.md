@@ -89,7 +89,7 @@ No installation is required to explore the dashboard.
 
 A 3-minute walkthrough of the complete solution is available here:
 
-👉 https://YOUR_VIDEO_LINK
+👉 [https://DEMO_VIDEO_LINK](https://github.com/Shuchismita2000/Artha/blob/main/Artha%20Demo%20Video.mp4)
 
 ## Design decisions
 
